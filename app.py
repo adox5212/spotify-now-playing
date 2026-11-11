@@ -1,5 +1,6 @@
 import asyncio
 import json
+import subprocess
 import threading
 import time
 from pathlib import Path
@@ -138,13 +139,35 @@ async def read_session():
             state["updated"] = time.time()
 
 
+LAST_PUSH_KEY = None
+
+
+def _push_now_playing():
+    try:
+        subprocess.run(["git", "add", "docs/now-playing.json"], cwd=str(ROOT), check=False)
+        subprocess.run(["git", "commit", "-m", "now playing"], cwd=str(ROOT), check=False)
+        subprocess.run(["git", "push", "origin", "master"], cwd=str(ROOT), check=False)
+    except Exception:
+        pass
+
+
 async def poll_loop():
+    global LAST_PUSH_KEY
     while True:
         await read_session()
         with state_lock:
             snapshot = dict(state)
         try:
             (ROOT / "docs" / "now-playing.json").write_text(json.dumps(snapshot), encoding="utf-8")
+            key = json.dumps([
+                snapshot.get("title"),
+                snapshot.get("artist"),
+                snapshot.get("album"),
+                snapshot.get("playing"),
+            ])
+            if key != LAST_PUSH_KEY:
+                LAST_PUSH_KEY = key
+                _push_now_playing()
         except Exception:
             pass
         await asyncio.sleep(1.5)
