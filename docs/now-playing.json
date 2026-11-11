@@ -1,0 +1,12 @@
+{
+  "available": false,
+  "playing": false,
+  "title": "Nothing playing",
+  "artist": "Play something on Spotify",
+  "album": "",
+  "position": 0,
+  "duration": 0,
+  "art_url": "./static/placeholder.svg",
+  "message": "Waiting for Windows media session…",
+  "updated": 0
+}
