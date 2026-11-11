@@ -1,4 +1,5 @@
 import asyncio
+import json
 import threading
 import time
 from pathlib import Path
@@ -127,7 +128,7 @@ async def read_session():
                 "album": album,
                 "position": position,
                 "duration": duration,
-                "art_url": "/static/album-art.jpg?v=" + str(int(time.time())) if ART_PATH.exists() else "/static/placeholder.svg",
+                "art_url": "./static/album-art.jpg?v=" + str(int(time.time())) if ART_PATH.exists() else "./static/placeholder.svg",
                 "message": "Playing" if playing else "Spotify is paused",
                 "updated": time.time(),
             })
@@ -140,6 +141,12 @@ async def read_session():
 async def poll_loop():
     while True:
         await read_session()
+        with state_lock:
+            snapshot = dict(state)
+        try:
+            (ROOT / "docs" / "now-playing.json").write_text(json.dumps(snapshot), encoding="utf-8")
+        except Exception:
+            pass
         await asyncio.sleep(1.5)
 
 

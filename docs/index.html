@@ -369,7 +369,7 @@ function fmt(seconds) {
 
 async function refresh() {
   try {
-    const res = await fetch("./api/now-playing", { cache: "no-store" });
+    const res = await fetch("./now-playing.json", { cache: "no-store" });
     const data = await res.json();
     
     // Title
